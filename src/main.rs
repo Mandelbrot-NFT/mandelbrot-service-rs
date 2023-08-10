@@ -16,7 +16,7 @@ impl Api {
 #[tokio::main]
 async fn main() {
     let api_service =
-        OpenApiService::new(Api, "Hello World", "1.0").server("http://localhost:10000");
+        OpenApiService::new(Api, "Hello World", "1.0").server("https://mandelbrot-service.onrender.com");
     let ui = api_service.swagger_ui();
     let app = Route::new().nest("/", api_service).nest("/docs", ui);
     
