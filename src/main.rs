@@ -1,9 +1,10 @@
 mod evm;
 
+use moka::future::Cache;
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::{
     param::Path,
-    payload::{Json, PlainText},
+    payload::Json,
     ApiResponse,
     Object,
     OpenApi,
@@ -18,7 +19,7 @@ use web3::{
 };
 
 
-#[derive(Union, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Union)]
 enum Value {
     Int(u64),
     String(String),
@@ -26,7 +27,7 @@ enum Value {
 }
 
 
-#[derive(Debug, Object)]
+#[derive(Clone, Debug, Object)]
 struct Attribute {
     display_type: String,
     trait_type: String,
@@ -34,7 +35,7 @@ struct Attribute {
 }
 
 
-#[derive(Debug, Object)]
+#[derive(Clone, Debug, Object)]
 struct Metadata {
     image: String,
     external_url: String,
@@ -53,6 +54,7 @@ enum GetTokenResponse {
 
 struct Api {
     contract: Contract<Http>,
+    cache: Cache<u64, Metadata>,
 }
 
 #[OpenApi]
@@ -65,28 +67,34 @@ impl Api {
                 web3.eth(),
                 std::env::var("ERC1155_CONTRACT_ADDRESS").unwrap().trim_start_matches("0x").parse().unwrap(),
                 include_bytes!("../resources/MandelbrotNFT.json"),
-            ).unwrap()
+            ).unwrap(),
+            cache: Cache::new(10_000),
         }
     }
 
     #[oai(path = "/:id", method = "get")]
     async fn get(&self, id: Path<u64>) -> GetTokenResponse {
-        if let Ok(result) = self.contract.query(
+        if let Ok(result) = self.contract.query::<evm::types::Metadata, _, _, _>(
             "getMetadata",
             (U256::from(*id),),
             None,
             Options::default(),
             None
         ).await {
-            let metadata: evm::types::Metadata = result;
-            GetTokenResponse::Ok(Json(Metadata {
-                image: String::new(),
-                external_url: format!("https://mandelbrot-nft.onrender.com/node/{}", *id),
-                attributes: vec![Attribute {
-                    display_type: "number".into(),
-                    trait_type: "Locked FUEL".into(),
-                    value: Value::Float(metadata.locked_fuel),
-                }],
+            GetTokenResponse::Ok(Json(if let Some(metadata) = self.cache.get(&*id) {
+                metadata
+            } else {
+                let metadata = Metadata {
+                    image: String::new(),
+                    external_url: format!("https://mandelbrot-nft.onrender.com/node/{}", *id),
+                    attributes: vec![Attribute {
+                        display_type: "number".into(),
+                        trait_type: "Locked FUEL".into(),
+                        value: Value::Float(result.locked_fuel),
+                    }],
+                };
+                self.cache.insert(*id, metadata.clone()).await;
+                metadata
             }))
         } else {
             GetTokenResponse::NotFound
