@@ -1,7 +1,7 @@
 mod evm;
 
 use moka::future::Cache;
-use poem::{listener::TcpListener, Route, Server};
+use poem::{endpoint::StaticFilesEndpoint, listener::TcpListener, Route, Server};
 use poem_openapi::{
     param::Path,
     payload::Json,
@@ -53,16 +53,20 @@ enum GetTokenResponse {
 
 
 struct Api {
+    metadata_host: String,
+    dapp_host: String,
     contract: Contract<Http>,
     cache: Cache<u64, Metadata>,
 }
 
 #[OpenApi]
 impl Api {
-    fn new() -> Self {
+    fn new(metadata_host: String, dapp_host: String) -> Self {
         let transport = Http::new(&std::env::var("NODE_RPC_URL").unwrap()).unwrap();
         let web3 = Web3::new(transport);
         Self {
+            metadata_host,
+            dapp_host,
             contract: Contract::from_json(
                 web3.eth(),
                 std::env::var("ERC1155_CONTRACT_ADDRESS").unwrap().trim_start_matches("0x").parse().unwrap(),
@@ -74,30 +78,38 @@ impl Api {
 
     #[oai(path = "/:id", method = "get")]
     async fn get(&self, id: Path<u64>) -> GetTokenResponse {
-        if let Ok(result) = self.contract.query::<evm::types::Metadata, _, _, _>(
-            "getMetadata",
-            (U256::from(*id),),
-            None,
-            Options::default(),
-            None
-        ).await {
-            GetTokenResponse::Ok(Json(if let Some(metadata) = self.cache.get(&*id) {
-                metadata
-            } else {
+        if let Some(metadata) = self.cache.get(&*id) {
+            GetTokenResponse::Ok(Json(metadata))
+        } else {
+            if let Ok(metadata) = self.contract.query::<evm::types::Metadata, _, _, _>(
+                "getMetadata",
+                (U256::from(*id),),
+                None,
+                Options::default(),
+                None
+            ).await {
+                let image_path = format!("images/{}.png", *id);
+                mandelbrot_explorer::capture(&image_path, &mandelbrot_explorer::MandelbrotParams {
+                    x_min: metadata.field.x_min as f32,
+                    x_max: metadata.field.x_max as f32,
+                    y_min: metadata.field.y_min as f32,
+                    y_max: metadata.field.y_max as f32,
+                    max_iterations: 1360
+                }).await;
                 let metadata = Metadata {
-                    image: String::new(),
-                    external_url: format!("https://mandelbrot-nft.onrender.com/node/{}", *id),
+                    image: format!("{}/{}", self.metadata_host, image_path),
+                    external_url: format!("{}/nodes/{}", self.dapp_host, *id),
                     attributes: vec![Attribute {
                         display_type: "number".into(),
                         trait_type: "Locked FUEL".into(),
-                        value: Value::Float(result.locked_fuel),
+                        value: Value::Float(metadata.locked_fuel),
                     }],
                 };
                 self.cache.insert(*id, metadata.clone()).await;
-                metadata
-            }))
-        } else {
-            GetTokenResponse::NotFound
+                GetTokenResponse::Ok(Json(metadata))
+            } else {
+                GetTokenResponse::NotFound
+            }
         }
     }
 }
@@ -107,11 +119,17 @@ impl Api {
 async fn main() {
     dotenv::dotenv().ok();
 
-    let api_service = OpenApiService::new(Api::new(), "Hello World", "1.0")
-        .server("https://mandelbrot-service.onrender.com")
-        .server("http://127.0.0.1:10000");
+    std::fs::create_dir_all("./images");
+
+    let metadata_host = std::env::var("METADATA_HOST").unwrap();
+    let dapp_host = std::env::var("DAPP_HOST").unwrap();
+    let api_service = OpenApiService::new(Api::new(metadata_host.clone(), dapp_host), "Hello World", "1.0")
+        .server(metadata_host);
     let ui = api_service.swagger_ui();
-    let app = Route::new().nest("/", api_service).nest("/docs", ui);
+    let app = Route::new()
+        .nest("/images", StaticFilesEndpoint::new("./images").show_files_listing())
+        .nest("/", api_service)
+        .nest("/docs", ui);
     
     Server::new(TcpListener::bind("0.0.0.0:10000"))
         .run(app)
