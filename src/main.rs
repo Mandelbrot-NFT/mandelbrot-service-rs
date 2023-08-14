@@ -121,11 +121,18 @@ impl Api {
                 let metadata = Metadata {
                     image: format!("{}/{}", self.metadata_host, image_path),
                     external_url: format!("{}/nodes/{}", self.dapp_host, *id),
-                    attributes: vec![Attribute {
-                        display_type: "number".into(),
-                        trait_type: "Locked FUEL".into(),
-                        value: Value::Float(metadata.locked_fuel),
-                    }],
+                    attributes: vec![
+                        Attribute {
+                            display_type: "number".into(),
+                            trait_type: "Parent NFT Id".into(),
+                            value: Value::Int(metadata.parent_id as u64),
+                        },
+                        Attribute {
+                            display_type: "number".into(),
+                            trait_type: "Locked FUEL".into(),
+                            value: Value::Float(metadata.locked_fuel),
+                        },
+                    ],
                 };
                 self.cache.insert(*id, metadata.clone()).await;
                 GetTokenResponse::Ok(Json(metadata))

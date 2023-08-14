@@ -45,7 +45,7 @@ impl web3::contract::tokens::TokenizableItem for Field {}
 pub struct Metadata {
     pub token_id: u128,
     pub owner: Address,
-    parent_id: u128,
+    pub parent_id: u128,
     pub field: Field,
     pub locked_fuel: f64,
     pub minimum_price: f64,
