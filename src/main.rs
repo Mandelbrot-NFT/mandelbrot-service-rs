@@ -89,13 +89,15 @@ impl Api {
                 None
             ).await {
                 let image_path = format!("images/{}.png", *id);
-                mandelbrot_explorer::capture(&image_path, &mandelbrot_explorer::MandelbrotParams {
+                if let Err(error) = mandelbrot_explorer::capture(&image_path, &mandelbrot_explorer::MandelbrotParams {
                     x_min: metadata.field.x_min as f32,
                     x_max: metadata.field.x_max as f32,
                     y_min: metadata.field.y_min as f32,
                     y_max: metadata.field.y_max as f32,
                     max_iterations: 1360
-                }).await;
+                }).await {
+                    eprintln!("{:?}", error);
+                }
                 let metadata = Metadata {
                     image: format!("{}/{}", self.metadata_host, image_path),
                     external_url: format!("{}/nodes/{}", self.dapp_host, *id),
