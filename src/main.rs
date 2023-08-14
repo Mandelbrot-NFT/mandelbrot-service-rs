@@ -1,16 +1,19 @@
 mod evm;
 
 use moka::future::Cache;
-use poem::{endpoint::StaticFilesEndpoint, listener::TcpListener, Route, Server};
+use poem::{endpoint::StaticFilesEndpoint, listener::TcpListener, Result, Route, Server};
 use poem_openapi::{
     param::Path,
     payload::Json,
+    types::multipart::Upload,
     ApiResponse,
+    Multipart,
     Object,
     OpenApi,
     OpenApiService,
     Union
 };
+use tokio::io::AsyncWriteExt;
 use web3::{
     contract::{Contract, Options},
     types::U256,
@@ -52,6 +55,13 @@ enum GetTokenResponse {
 }
 
 
+// TEMP
+#[derive(Debug, Multipart)]
+struct UploadPayload {
+    file: Upload,
+}
+
+
 struct Api {
     metadata_host: String,
     dapp_host: String,
@@ -61,6 +71,16 @@ struct Api {
 
 #[OpenApi]
 impl Api {
+    /// TEMP: Upload file
+    #[oai(path = "/files", method = "post")]
+    async fn upload(&self, upload: UploadPayload) -> Result<()> {
+        let filename = format!("./images/{}", upload.file.file_name().unwrap().to_string());
+        let data = upload.file.into_vec().await.unwrap();
+        let mut file = tokio::fs::File::create(filename.clone()).await.unwrap();
+        file.write_all(&data).await.unwrap();
+        Ok(())
+    }
+
     fn new(metadata_host: String, dapp_host: String) -> Self {
         let transport = Http::new(&std::env::var("NODE_RPC_URL").unwrap()).unwrap();
         let web3 = Web3::new(transport);
