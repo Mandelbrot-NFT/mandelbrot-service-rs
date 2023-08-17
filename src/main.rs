@@ -120,7 +120,7 @@ impl Api {
                 }
                 let metadata = Metadata {
                     image: format!("{}/{}", self.metadata_host, image_path),
-                    external_url: format!("{}/nodes/{}", self.dapp_host, *id),
+                    external_url: format!("{}/tokens/{}", self.dapp_host, *id),
                     attributes: vec![
                         Attribute {
                             display_type: "number".into(),

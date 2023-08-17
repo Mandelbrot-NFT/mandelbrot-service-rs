@@ -5,6 +5,66 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "BidNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BidTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FieldOutside",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FieldTooLarge",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FieldsOverlap",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MinimumBidTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoRightsToApproveBid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoRightsToBurn",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoRightsToDeleteBid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenNotEmpty",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyChildTokens",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -156,7 +216,33 @@
   },
   {
     "inputs": [],
+    "name": "BASE_URL",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "FUEL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAXIMUM_FIELD_PORTION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -228,13 +314,7 @@
       }
     ],
     "name": "approve",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -295,13 +375,7 @@
       }
     ],
     "name": "batchApprove",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -321,22 +395,22 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "min_x",
+            "name": "left",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "min_y",
+            "name": "bottom",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "max_x",
+            "name": "right",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "max_y",
+            "name": "top",
             "type": "uint256"
           }
         ],
@@ -423,22 +497,22 @@
             "components": [
               {
                 "internalType": "uint256",
-                "name": "min_x",
+                "name": "left",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "min_y",
+                "name": "bottom",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_x",
+                "name": "right",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_y",
+                "name": "top",
                 "type": "uint256"
               }
             ],
@@ -457,7 +531,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct MandelbrotNFT.Metadata[]",
+        "internalType": "struct MandelbrotNFT.MetadataView[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -479,8 +553,13 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "bidId",
+            "name": "tokenId",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
           },
           {
             "internalType": "uint256",
@@ -491,22 +570,22 @@
             "components": [
               {
                 "internalType": "uint256",
-                "name": "min_x",
+                "name": "left",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "min_y",
+                "name": "bottom",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_x",
+                "name": "right",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_y",
+                "name": "top",
                 "type": "uint256"
               }
             ],
@@ -515,13 +594,8 @@
             "type": "tuple"
           },
           {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "lockedFuel",
             "type": "uint256"
           },
           {
@@ -530,7 +604,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct MandelbrotNFT.BidView[]",
+        "internalType": "struct MandelbrotNFT.MetadataView[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -569,22 +643,22 @@
             "components": [
               {
                 "internalType": "uint256",
-                "name": "min_x",
+                "name": "left",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "min_y",
+                "name": "bottom",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_x",
+                "name": "right",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_y",
+                "name": "top",
                 "type": "uint256"
               }
             ],
@@ -603,7 +677,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct MandelbrotNFT.Metadata[]",
+        "internalType": "struct MandelbrotNFT.MetadataView[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -642,22 +716,22 @@
             "components": [
               {
                 "internalType": "uint256",
-                "name": "min_x",
+                "name": "left",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "min_y",
+                "name": "bottom",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_x",
+                "name": "right",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "max_y",
+                "name": "top",
                 "type": "uint256"
               }
             ],
@@ -676,7 +750,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct MandelbrotNFT.Metadata",
+        "internalType": "struct MandelbrotNFT.MetadataView",
         "name": "",
         "type": "tuple"
       }
@@ -878,7 +952,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   }
 ]
