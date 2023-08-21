@@ -49,7 +49,7 @@ pub struct Metadata {
     pub field: Field,
     pub locked_fuel: f64,
     pub minimum_price: f64,
-    pub owned: bool,
+    pub layer: u128,
 }
 
 impl Tokenizable for Metadata {
@@ -63,7 +63,7 @@ impl Tokenizable for Metadata {
                     field: Field::from_token(tokens[3].clone())?,
                     locked_fuel: U256::from_token(tokens[4].clone())?.as_u128() as f64 / 10_f64.powi(18),
                     minimum_price: U256::from_token(tokens[5].clone())?.as_u128() as f64 / 10_f64.powi(18),
-                    owned: false,
+                    layer: U256::from_token(tokens[6].clone())?.as_u128(),
                 })
             }
             _ => Err(web3::contract::Error::Abi(ethabi::Error::InvalidData)),
@@ -78,6 +78,7 @@ impl Tokenizable for Metadata {
             self.field.into_token(),
             U256::from(((self.locked_fuel) * 10_f64.powi(18)) as u128).into_token(),
             U256::from(((self.minimum_price) * 10_f64.powi(18)) as u128).into_token(),
+            self.layer.into_token(),
         ])
     }
 }

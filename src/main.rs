@@ -132,6 +132,16 @@ impl Api {
                             trait_type: "Locked FUEL".into(),
                             value: Value::Float(metadata.locked_fuel),
                         },
+                        Attribute {
+                            display_type: "number".into(),
+                            trait_type: "Layer".into(),
+                            value: Value::Int(metadata.layer as u64),
+                        },
+                        Attribute {
+                            display_type: "number".into(),
+                            trait_type: "Depth".into(),
+                            value: Value::Float(((metadata.field.x_max - metadata.field.x_min).min(metadata.field.y_max - metadata.field.y_min) / 4.0).log(0.5)),
+                        },
                     ],
                 };
                 self.cache.insert(*id, metadata.clone()).await;

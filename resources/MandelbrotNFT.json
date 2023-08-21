@@ -36,6 +36,11 @@
   },
   {
     "inputs": [],
+    "name": "NoCommonParent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "NoRightsToApproveBid",
     "type": "error"
   },
@@ -268,7 +273,7 @@
   },
   {
     "inputs": [],
-    "name": "PARENT_SHARE",
+    "name": "MINT_FEE",
     "outputs": [
       {
         "internalType": "uint256",
@@ -529,6 +534,11 @@
             "internalType": "uint256",
             "name": "minimumBid",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "layer",
+            "type": "uint256"
           }
         ],
         "internalType": "struct MandelbrotNFT.MetadataView[]",
@@ -601,6 +611,11 @@
           {
             "internalType": "uint256",
             "name": "minimumBid",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "layer",
             "type": "uint256"
           }
         ],
@@ -675,6 +690,11 @@
             "internalType": "uint256",
             "name": "minimumBid",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "layer",
+            "type": "uint256"
           }
         ],
         "internalType": "struct MandelbrotNFT.MetadataView[]",
@@ -747,6 +767,11 @@
           {
             "internalType": "uint256",
             "name": "minimumBid",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "layer",
             "type": "uint256"
           }
         ],
